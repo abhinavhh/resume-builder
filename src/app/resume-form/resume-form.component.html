@@ -1,0 +1,248 @@
+<div class="resume-form-container">
+  <div class="form-header">
+    <h1>Resume Builder</h1>
+    <p>Create your professional resume</p>
+  </div>
+
+  <form
+    class="resume-form"
+    [formGroup]="resumeForm"
+    (ngSubmit)="handleSubmit()"
+  >
+    <!-- Personal Information Section -->
+    <div class="form-section">
+      <h2 class="section-title">Personal Information</h2>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label for="firstName" class="form-label">First Name </label>
+          <input
+            type="text"
+            id="firstName"
+            formControlName="firstName"
+            class="form-control"
+            placeholder="Enter your first name"
+          />
+          <div class="error-message">
+            {{getFieldError('firstName')}}
+          </div>
+          
+        </div>
+
+        <div class="form-group">
+          <label for="lastName" class="form-label">Last Name </label>
+          <input
+            type="text"
+            id="lastName"
+            formControlName="lastName"
+            class="form-control"
+            placeholder="Enter your last name"
+          />
+          <div class="error-message">{{getFieldError('lastName')}}</div>
+        </div>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label for="dateOfBirth" class="form-label">Date of Birth</label>
+          <input
+            type="date"
+            id="dateOfBirth"
+            formControlName="dateOfBirth"
+            class="form-control"
+          />
+          <div class="error-message">{{getFieldError('dateOfBirth')}}</div>
+        </div>
+
+        <div class="form-group">
+          <label for="email" class="form-label">Email Address </label>
+          <input
+            type="email"
+            id="email"
+            formControlName="email"
+            class="form-control"
+            placeholder="Enter your email address"
+          />
+          <div class="error-message">
+            {{getFieldError('email')}}
+          </div>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Gender </label>
+        <div class="radio-group">
+          <label class="radio-option">
+            <input type="radio" value="male" formControlName="gender" />
+            <span class="radio-custom"></span>
+            Male
+          </label>
+          <label class="radio-option">
+            <input type="radio" value="female" formControlName="gender" />
+            <span class="radio-custom"></span>
+            Female
+          </label>
+          <label class="radio-option">
+            <input type="radio" value="other" formControlName="gender" />
+            <span class="radio-custom"></span>
+            Other
+          </label>
+        </div>
+        <div class="error-message">{{getFieldError('gender')}}</div>
+      </div>
+    </div>
+
+    <!-- Languages Section -->
+    <div class="form-section" formGroupName="languages">
+      <h2 class="section-title">Languages</h2>
+
+      <div class="languages-grid">
+        <div class="form-group">
+          <label class="checkbox-option">
+            <input type="checkbox" formControlName="english" />
+            <span class="checkbox-custom"></span>
+            English
+          </label>
+        </div>
+
+        <div class="form-group">
+          <label class="checkbox-option">
+            <input type="checkbox" formControlName="hindi" />
+            <span class="checkbox-custom"></span>
+            Hindi
+          </label>
+        </div>
+
+        <div class="form-group">
+          <label class="checkbox-option">
+            <input type="checkbox" formControlName="malayalam" />
+            <span class="checkbox-custom"></span>
+            Malayalam
+          </label>
+        </div>
+      </div>
+    </div>
+
+    <!-- Address Section -->
+    <div class="form-section">
+      <h2 class="section-title">Address Information</h2>
+
+      <div  formGroupName="address">
+        <div class="form-row">
+          <div class="form-group">
+            <label for="houseNo" class="form-label">House No </label>
+            <input
+              type="number"
+              id="houseNo"
+              formControlName="houseNo"
+              class="form-control"
+              placeholder="House/Flat number"
+            />
+            <div class="error-message">{{getFieldError('address.houseNo')}}</div>
+          </div>
+
+          <div class="form-group">
+            <label for="street" class="form-label">Street </label>
+            <input
+              type="text"
+              id="street"
+              formControlName="street"
+              class="form-control"
+            />
+            <div class="error-message">{{getFieldError('address.street')}}</div>
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label for="city" class="form-label">City </label>
+            <input
+              type="text"
+              id="city"
+              formControlName="city"
+              class="form-control"
+              placeholder="City name"
+            />
+            <div class="error-message">{{getFieldError('address.city')}}</div>
+          </div>
+
+          <div class="form-group">
+            <label for="state" class="form-label">State </label>
+            <input
+              type="text"
+              id="state"
+              formControlName="state"
+              class="form-control"
+              placeholder="State name"
+            />
+            <div class="error-message">{{getFieldError('address.state')}}</div>
+          </div>
+
+          <div class="form-group">
+            <label for="pincode" class="form-label">Pincode</label>
+            <input
+              type="number"
+              id="pincode"
+              formControlName="pincode"
+              class="form-control"
+              placeholder="6-digit pincode"
+              maxlength="6"
+            />
+            <div class="error-message">
+              {{getFieldError('address.pincode')}}
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Experience Section -->
+    <div class="form-section" formArrayName="experiences">
+      <h2 class="section-title">Work Experience</h2>
+
+      <div>
+        <div class="experience-item">
+          <!-- Experience form controls would go here -->
+          <div
+            *ngFor="let exp of experience.controls; let i = index"
+            [formGroupName]="i"
+          >
+            <input
+              type="text"
+              placeholder="Company Name"
+              formControlName="companyName"
+            />
+            <input
+              type="text"
+              placeholder="Position"
+              formControlName="position"
+            />
+
+            <div formGroupName="experience">
+              <input type="date" formControlName="startDate" />
+              <input type="date" formControlName="endDate" />
+            </div>
+            <button type="button" (click)="handleDelete(i)">Delete</button>
+          </div>
+          <p class="placeholder-text"></p>
+        </div>
+
+        <button
+          type="button"
+          class="btn-add-experience"
+          (click)="addExperience()"
+        >
+          <span>+</span> Add Experience
+        </button>
+      </div>
+    </div>
+
+    <!-- Form Actions -->
+    <div class="form-actions">
+      <button type="button" class="btn-secondary">Cancel</button>
+      <button type="submit" class="btn-primary" [disabled]="resumeForm.invalid">
+        Generate Resume
+      </button>
+    </div>
+  </form>
+</div>
