@@ -24,9 +24,8 @@
             placeholder="Enter your first name"
           />
           <div class="error-message">
-            {{getFieldError('firstName')}}
+            {{ getFieldError("firstName") }}
           </div>
-          
         </div>
 
         <div class="form-group">
@@ -38,7 +37,7 @@
             class="form-control"
             placeholder="Enter your last name"
           />
-          <div class="error-message">{{getFieldError('lastName')}}</div>
+          <div class="error-message">{{ getFieldError("lastName") }}</div>
         </div>
       </div>
 
@@ -51,7 +50,7 @@
             formControlName="dateOfBirth"
             class="form-control"
           />
-          <div class="error-message">{{getFieldError('dateOfBirth')}}</div>
+          <div class="error-message">{{ getFieldError("dateOfBirth") }}</div>
         </div>
 
         <div class="form-group">
@@ -64,7 +63,7 @@
             placeholder="Enter your email address"
           />
           <div class="error-message">
-            {{getFieldError('email')}}
+            {{ getFieldError("email") }}
           </div>
         </div>
       </div>
@@ -88,7 +87,7 @@
             Other
           </label>
         </div>
-        <div class="error-message">{{getFieldError('gender')}}</div>
+        <div class="error-message">{{ getFieldError("gender") }}</div>
       </div>
     </div>
 
@@ -120,6 +119,22 @@
             Malayalam
           </label>
         </div>
+
+        <div class="form-group">
+          <label class="checkbox-option">
+            <input type="checkbox" formControlName="tamil" />
+            <span class="checkbox-custom"></span>
+            Tamil
+          </label>
+        </div>
+
+        <div class="form-group">
+          <label class="checkbox-option">
+            <input type="checkbox" formControlName="others" />
+            <span class="checkbox-custom"></span>
+            Others
+          </label>
+        </div>
       </div>
     </div>
 
@@ -127,7 +142,7 @@
     <div class="form-section">
       <h2 class="section-title">Address Information</h2>
 
-      <div  formGroupName="address">
+      <div formGroupName="address">
         <div class="form-row">
           <div class="form-group">
             <label for="houseNo" class="form-label">House No </label>
@@ -135,10 +150,13 @@
               type="number"
               id="houseNo"
               formControlName="houseNo"
+              (keydown)="allowOnlyNumbers($event)"
               class="form-control"
               placeholder="House/Flat number"
             />
-            <div class="error-message">{{getFieldError('address.houseNo')}}</div>
+            <div class="error-message">
+              {{ getFieldError("address.houseNo") }}
+            </div>
           </div>
 
           <div class="form-group">
@@ -149,7 +167,9 @@
               formControlName="street"
               class="form-control"
             />
-            <div class="error-message">{{getFieldError('address.street')}}</div>
+            <div class="error-message">
+              {{ getFieldError("address.street") }}
+            </div>
           </div>
         </div>
 
@@ -163,7 +183,7 @@
               class="form-control"
               placeholder="City name"
             />
-            <div class="error-message">{{getFieldError('address.city')}}</div>
+            <div class="error-message">{{ getFieldError("address.city") }}</div>
           </div>
 
           <div class="form-group">
@@ -175,7 +195,9 @@
               class="form-control"
               placeholder="State name"
             />
-            <div class="error-message">{{getFieldError('address.state')}}</div>
+            <div class="error-message">
+              {{ getFieldError("address.state") }}
+            </div>
           </div>
 
           <div class="form-group">
@@ -187,9 +209,10 @@
               class="form-control"
               placeholder="6-digit pincode"
               maxlength="6"
+              (keydown)="allowOnlyNumbers($event)"
             />
             <div class="error-message">
-              {{getFieldError('address.pincode')}}
+              {{ getFieldError("address.pincode") }}
             </div>
           </div>
         </div>
@@ -245,4 +268,56 @@
       </button>
     </div>
   </form>
+</div>
+
+<!-- RESUME PRINTING -->
+<button (click)="fetchResumeDetails()">Show Resume</button>
+<div *ngIf="resumeData" class="resume-container">
+  <!-- Header Section -->
+  <div class="header">
+    <h1 class="name">{{ resumeData.first_name }} {{ resumeData.last_name }}</h1>
+    <div class="contact-info">
+      <p>
+        {{ resumeData.house_no }}, {{ resumeData.street }},
+        {{ resumeData.city }}, {{ resumeData.state }} {{ resumeData.pincode }}
+      </p>
+      <p>{{ resumeData.email }} | {{ resumeData.phone }}</p>
+      <p *ngIf="resumeData.linkedin">LinkedIn: {{ resumeData.linkedin }}</p>
+      <p *ngIf="resumeData.github">GitHub: {{ resumeData.github }}</p>
+    </div>
+  </div>
+
+  <!-- Experience -->
+  <div class="section" *ngIf="resumeData.projects || resumeData.experiences">
+    <h2 class="section-title">EXPERIENCE</h2>
+
+    <!-- Work Experience -->
+    <div *ngFor="let exp of resumeData.experiences" class="experience-item">
+      <div class="experience-header">
+        <h3 class="project-title">
+          {{ exp.position }} - {{ exp.company_name }}
+        </h3>
+        <span class="date-range"
+          >{{ exp.start_date }} - {{ exp.end_date || "Present" }}</span
+        >
+      </div>
+      <ul class="achievement-list" *ngIf="exp.responsibilities">
+        <li *ngFor="let responsibility of exp.responsibilities">
+          {{ responsibility }}
+        </li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- Languages -->
+  <h2 *ngIf="resumeData.languages" class="section-title">LANGUAGES</h2>
+  <div
+    class="section"
+    *ngFor="let lang of resumeData.languages"
+  >
+    
+    <ul class="language-list">
+      <li>{{lang.name}}</li>
+    </ul>
+  </div>
 </div>

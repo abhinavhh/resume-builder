@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { AbstractControl, FormArray, FormControl, FormGroup, Validators } from '@angular/forms';
+import { AbstractControl, FormArray, FormControl, FormGroup, ValidationErrors, Validators } from '@angular/forms';
 import { HttpClient } from '@angular/common/http'
 
 @Component({
@@ -10,26 +10,30 @@ import { HttpClient } from '@angular/common/http'
 export class ResumeFormComponent implements OnInit{
 
     resumeForm !: FormGroup;
-    backendUri: string = 'http://localhost:3000/'
+    resumeData: any = null;
+    backendUri: string = 'http://127.0.0.1:8000/api/resume'
     constructor(private http: HttpClient) {}
     ngOnInit() {
       this.resumeForm = new FormGroup({
-        firstName : new FormControl('', [Validators.required, this.nameValidator]),
-        lastName: new FormControl('', [Validators.required, this.noLeadingAndEndingSpace]),
-        dateOfBirth: new FormControl('', [Validators.required, this.validDOB]),
+        firstName : new FormControl('', [Validators.required, this.alphabetsOnly]),
+        lastName: new FormControl('', [Validators.required, this.alphabetsWithSpaces, this.noLeadingOrTrailingSpaces]),
+        dateOfBirth: new FormControl('', [Validators.required, this.dob]),
         email: new FormControl('', [Validators.required, Validators.email]),
         gender: new FormControl('male'),
         languages: new FormGroup({
           english: new FormControl(''),
           hindi: new FormControl(''),
-          malayalam: new FormControl('')
+          malayalam: new FormControl(''),
+          tamil: new FormControl(''),
+          others: new FormControl(''),
+
         }),
         address: new FormGroup({
           houseNo: new FormControl('', [Validators.required]),
-          street: new FormControl('', [Validators.required]),
-          city: new FormControl('', [Validators.required]),
-          state: new FormControl('', [Validators.required]),
-          pincode: new FormControl('', [Validators.required, this.pincodeError]),
+          street: new FormControl('', [Validators.required, this.noLeadingOrTrailingSpaces]),
+          city: new FormControl('', [Validators.required, this.noLeadingOrTrailingSpaces]),
+          state: new FormControl('', [Validators.required, this.noLeadingOrTrailingSpaces]),
+          pincode: new FormControl('', [Validators.required, this.pincode]),
         }),
         experiences: new FormArray([])
           
@@ -59,59 +63,123 @@ export class ResumeFormComponent implements OnInit{
 
     handleSubmit() {
       if(this.resumeForm.valid) {
-        console.log(this.resumeForm.value);
-        this.http.post(this.backendUri, this.resumeForm.value).subscribe({
+        const formValue = this.resumeForm.value;
+
+        const selectedLanguages = Object.keys(formValue.languages)
+          .filter(langKey => formValue.languages[langKey])
+          .map(langKey => ({
+            name: langKey.charAt(0).toUpperCase() + langKey.slice(1)
+          }))
+        const payload = {
+          ...formValue,
+          languages: selectedLanguages
+        };
+
+        this.http.post<{ message: string , resumeId: string}>(this.backendUri + '/submit/', payload).subscribe({
           next : (res) => {
-            console.log(res);
-            alert(res);
+            alert(res.message);
+            console.log(res.resumeId);
+            localStorage.setItem('id', res.resumeId);
+            this.resumeForm.reset({
+              firstName: '',
+              lastName: '',
+              dateOfBirth: '',
+              email: '',
+              gender: '',
+              languages: {
+                english: false,
+                hindi: false,
+                malayalam: false
+              },
+              address: {
+                houseNo: '',
+                street: '',
+                city: '',
+                state: '',
+                pincode: ''
+              },
+              experiences: []
+            });
           },
           error: (err: any) => {
-            alert(err);
-            console.log(err);
+          
+            alert(err.error)
           }
         });
       }
     }
 
+    fetchResumeDetails() {
+      this.http.get<{resumes: any}>(this.backendUri + '/get-resume', {
+        params: {id: localStorage.getItem('id') || ''}
+      }).subscribe({
+        next : (data) => {
+          this.resumeData = data.resumes;
+          console.log(this.resumeData);
+        }
+      })
+    }
+
+
+    // number input 
+
+    allowOnlyNumbers(event: KeyboardEvent) {
+      const allowedKeys = ['Backspace', 'ArrowLeft', 'ArrowRight', 'Tab'];
+      if(allowedKeys.includes(event.key)) {
+        return;
+      }
+
+      if(!/^\d$/.test(event.key)) {
+        event.preventDefault();
+      }
+    }
 
     // Custom Validation
-    nameValidator(control: AbstractControl): any {
-      const pattern = /^[a-zA-Z]+$/
-      if(control.value.includes(' ') || !pattern.test(control.value)){
-        return {nameError: true}
-      }
-    }
-
-    noLeadingAndEndingSpace(control: AbstractControl): any {
-      const pattern = /^[a-zA-Z]$/;
-      if(control.value.startsWith(' ') || control.value.endsWith(' ') || control.value.trim('').length === 0 || !pattern.test(control.value)){
-        return {spaceError: true}
-      } 
-    }
-
-    validDOB(control: AbstractControl): any {
+    alphabetsOnly(control: AbstractControl): ValidationErrors | null {
       if (!control.value) return null;
-      const dob = new Date(control.value);
-      const today = new Date();
+      const pattern = /^[A-Za-z]+$/;
+      return pattern.test(control.value) ? null : { alphabetsOnly: true };
+    }
 
-      if (dob > today) {
-        return { futureDate: true };
-      }
+    alphabetsWithSpaces(control: AbstractControl): ValidationErrors | null {
+      if (!control.value) return null;
+      const value = control.value as string;
+      const pattern = /^[A-Za-z ]+$/;
+      if (!pattern.test(value)) return { invalidChars: true };
+      if (value.trim() !== value) return { spaceError: true };
+      if (/\s{2,}/.test(value)) return { consecutiveSpaces: true };
+      return null;
+    }
 
-      const age = today.getFullYear() - dob.getFullYear();
-      if (age < 18) {
-        return { ageError: true };
-      }
-
+    noLeadingOrTrailingSpaces(control: AbstractControl): ValidationErrors | null {
+      if (!control.value) return null;
+      const value = control.value as string;
+      if (value.trim() !== value) return { spaceError: true };
       return null;
     }
 
 
-    pincodeError(control: AbstractControl): any {
-      const pinPattern = /^[0-9]{6}$/;
-      if(!pinPattern.test(control.value as string)) {
-        return {pincodeError: true}
-      }
+    pincode(control: AbstractControl): ValidationErrors | null {
+      if (!control.value) return null;
+      const pattern = /^[0-9]{6}$/;
+      return pattern.test(control.value) ? null : { pincodeError: true };
+    }
+
+    dob(control: AbstractControl): ValidationErrors | null {
+      if (!control.value) return null;
+      const dob = new Date(control.value);
+      const today = new Date();
+      if (dob > today) return { futureDate: true };
+      const age = today.getFullYear() - dob.getFullYear();
+      if (age < 18) return { ageError: true };
+      return null;
+    }
+
+    notFutureDate(control: AbstractControl): ValidationErrors | null {
+      if (!control.value) return null;
+      const inputDate = new Date(control.value);
+      const today = new Date();
+      if (inputDate > today) return { futureDate: true };
       return null;
     }
 
@@ -120,13 +188,16 @@ export class ResumeFormComponent implements OnInit{
       if(!control || !control.touched){
         return null;
       }
-      if(control.hasError('required')) return 'This is a required Field';
-      if(control.hasError('nameError')) return 'Invalid Input';
-      if(control.hasError('spaceError')) return 'Invalid Input';
-      if(control.hasError('email')) return 'Please enter a valid email';
-      if(control.hasError('pincodeError')) return 'Invalid Pincode';
-      if(control.hasError('futureDate')) return 'Future Date Error';
-      if(control.hasError('ageError')) return 'Under 18';
+      if (control.hasError('required')) return 'This field is required';
+      if (control.hasError('alphabetsOnly')) return 'Only alphabets are allowed';
+      if (control.hasError('invalidChars')) return 'Only alphabets and spaces are allowed';
+      if (control.hasError('spaceError')) return 'No leading or trailing spaces allowed';
+      if (control.hasError('consecutiveSpaces')) return 'Multiple spaces are not allowed';
+      if (control.hasError('email')) return 'Please enter a valid email address';
+      if (control.hasError('pincodeError')) return 'Pincode must be 6 digits';
+      if (control.hasError('futureDate')) return 'Date cannot be in the future';
+      if (control.hasError('ageError')) return 'You must be at least 18 years old';
+
       return null;
 
     }
