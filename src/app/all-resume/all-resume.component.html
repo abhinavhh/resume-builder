@@ -1,0 +1,118 @@
+<div class="resume-container" *ngIf="!resumeData">
+  <h1 *ngIf="allResumesData.length === 0">No Resume Created</h1>
+
+  <ul class="resume-list">
+    <li class="resume-item" *ngFor="let resume of allResumesData">
+      <div class="resume-avatar">
+        {{ resume.firstName[0] }}{{ resume.lastName[0] }}
+      </div>
+
+      <div class="resume-details">
+        <h2>{{ resume.firstName }} {{ resume.lastName }}</h2>
+        <p>Email: {{ resume.email }}</p>
+        <p>DOB: {{ resume.dateOfBirth | date : "mediumDate" }}</p>
+        <p>Gender: {{ resume.gender }}</p>
+      </div>
+
+      <div class="resume-actions">
+        <button
+          class="btn btn-primary"
+          style="background-color: rgb(43, 119, 241); color: white;"
+          (click)="fetchResumeDetails(resume.id)"
+        >
+          Show Resume
+        </button>
+        <button
+          class="btn update-btn"
+          (click)="updateResume(resume.id, $event)"
+        >
+          Update
+        </button>
+        <button
+          class="btn delete-btn"
+          (click)="deleteResume(resume.id, $event)"
+        >
+          Delete
+        </button>
+        
+      </div>
+    </li>
+  </ul>
+</div>
+
+
+<div *ngIf="resumeData" class="resume-container">
+  <!-- Header Section -->
+  <div class="header">
+    <h1 class="name">{{ resumeData.firstName }} {{ resumeData.lastName }}</h1>
+    <img [src]="'http://localhost:8000' + resumeData.profileImage" *ngIf="resumeData.profileImage">
+    <div class="contact-info">
+      <p>{{ resumeData.email }}</p>
+    </div>
+  </div>
+  <!-- Personal Details -->
+  <div class="section">
+    <h2 class="section-title">PERSONAL DETAILS</h2>
+    <ul class="details-list">
+      <li>
+        <strong>Name:</strong> {{ resumeData.firstName }}
+        {{ resumeData.lastName }}
+      </li>
+      <li *ngIf="resumeData.email">
+        <strong>Email:</strong> {{ resumeData.email }}
+      </li>
+      <li *ngIf="resumeData.gender">
+        <strong>Gender:</strong> {{ resumeData.gender }}
+      </li>
+      <li *ngIf="resumeData.dateOfBirth">
+        <strong>Date of Birth:</strong> {{ resumeData.dateOfBirth }}
+      </li>
+    </ul>
+  </div>
+  <!-- Address -->
+  <div
+    class="section"
+  >
+    <h2 class="section-title">ADDRESS</h2>
+    <div class="address-grid">
+      <div><strong>House No:</strong> {{ resumeData.address.houseNo }}</div>
+      <div><strong>Street:</strong> {{ resumeData.address.street }}</div>
+      <div><strong>City:</strong> {{ resumeData.address.city }}</div>
+      <div><strong>State:</strong> {{ resumeData.address.state }}</div>
+      <div><strong>Pincode:</strong> {{ resumeData.address.pincode }}</div>
+    </div>
+  </div>
+  <!-- Experience -->
+  <div
+    class="section"
+    *ngIf="resumeData.experiences && resumeData.experiences.length > 0"
+  >
+    <h2 class="section-title">EXPERIENCE</h2>
+    <div *ngFor="let exp of resumeData.experiences">
+      <div class="experience-header">
+        <div class="company-details">
+          <h3 class="project-title">{{ exp.companyName }} -</h3>
+          <p>{{ exp.position }}</p>
+        </div>
+        <span class="date-range"
+          >{{ exp.experience.startDate }} -
+          {{ exp.experience.endDate || "Present" }}</span
+        >
+      </div>
+    </div>
+  </div>
+  <!-- Languages -->
+  <div
+    class="section"
+    *ngIf="resumeData.languages && resumeData.languages.length > 0"
+  >
+    <h2 class="section-title">LANGUAGES</h2>
+    <ul class="language-list">
+      <li *ngFor="let lang of resumeData.languages">{{ lang }}</li>
+    </ul>
+  </div>
+</div>
+
+<div class="resume-header">
+  <button class="show-resume-button" *ngIf="viewAll" (click)="handleViewAllClick()">View All Resumes</button>
+</div>  

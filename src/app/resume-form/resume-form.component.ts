@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { AbstractControl, FormArray, FormControl, FormGroup, ValidationErrors, Validators } from '@angular/forms';
-import { HttpClient } from '@angular/common/http'
+import { Resume } from '../Service/resume.model';
+import { ResumeService } from '../Service/resume.service';
 
 @Component({
   selector: 'app-resume-form',
@@ -10,34 +11,44 @@ import { HttpClient } from '@angular/common/http'
 export class ResumeFormComponent implements OnInit{
 
     resumeForm !: FormGroup;
-    resumeData: any = null;
-    backendUri: string = 'http://127.0.0.1:8000/api/resume'
-    constructor(private http: HttpClient) {}
+    resumeData!: Resume;
+    showResume: boolean = false;
+    isEditMode: boolean = false;
+    editResumeId: string | null = null;
+    selectedFile!: File;
+    Validators = Validators;
+    
+    constructor(private resumeService: ResumeService) {}
     ngOnInit() {
       this.resumeForm = new FormGroup({
         firstName : new FormControl('', [Validators.required, this.alphabetsOnly]),
         lastName: new FormControl('', [Validators.required, this.alphabetsWithSpaces, this.noLeadingOrTrailingSpaces]),
-        dateOfBirth: new FormControl('', [Validators.required, this.dob]),
+        dateOfBirth: new FormControl('', [Validators.required, this.dob, this.notFutureDate]),
         email: new FormControl('', [Validators.required, Validators.email]),
         gender: new FormControl('male'),
         languages: new FormGroup({
-          english: new FormControl(''),
-          hindi: new FormControl(''),
-          malayalam: new FormControl(''),
-          tamil: new FormControl(''),
-          others: new FormControl(''),
+          english: new FormControl(true),
+          hindi: new FormControl(false),
+          malayalam: new FormControl(false),
+          tamil: new FormControl(false),
+          others: new FormControl(false),
 
-        }),
+        }, [Validators.required, this.atLeastOneLanguageValidator]),
         address: new FormGroup({
           houseNo: new FormControl('', [Validators.required]),
           street: new FormControl('', [Validators.required, this.noLeadingOrTrailingSpaces]),
           city: new FormControl('', [Validators.required, this.noLeadingOrTrailingSpaces]),
           state: new FormControl('', [Validators.required, this.noLeadingOrTrailingSpaces]),
-          pincode: new FormControl('', [Validators.required, this.pincode]),
+          pincode: new FormControl('', [Validators.required, this.pincode, Validators.pattern(/^\d{6}$/)]),
         }),
         experiences: new FormArray([])
-          
       })
+
+      const editId = localStorage.getItem('editResumeId');
+      if(editId) {
+        this.loadResumeForEdit(editId);
+        localStorage.removeItem('editResumeId');
+      }
     }
 
     get experience(): FormArray {
@@ -49,8 +60,8 @@ export class ResumeFormComponent implements OnInit{
         companyName: new FormControl('', Validators.required),
         position: new FormControl('', Validators.required),
         experience: new FormGroup({
-          startDate: new FormControl('', Validators.required),
-          endDate: new FormControl('')
+          startDate: new FormControl('', [Validators.required, this.notFutureDate]),
+          endDate: new FormControl('',)
         })
         
       });
@@ -64,65 +75,207 @@ export class ResumeFormComponent implements OnInit{
     handleSubmit() {
       if(this.resumeForm.valid) {
         const formValue = this.resumeForm.value;
+        console.log(formValue);
+        const selectedLanguages = Object.entries(formValue.languages)
+          .filter(([_, selected]) => selected === true)
+          .map(([lang]) => lang);
 
-        const selectedLanguages = Object.keys(formValue.languages)
-          .filter(langKey => formValue.languages[langKey])
-          .map(langKey => ({
-            name: langKey.charAt(0).toUpperCase() + langKey.slice(1)
-          }))
-        const payload = {
+        const payload: Resume = {
           ...formValue,
           languages: selectedLanguages
         };
 
-        this.http.post<{ message: string , resumeId: string}>(this.backendUri + '/submit/', payload).subscribe({
-          next : (res) => {
-            alert(res.message);
-            console.log(res.resumeId);
-            localStorage.setItem('id', res.resumeId);
-            this.resumeForm.reset({
-              firstName: '',
-              lastName: '',
-              dateOfBirth: '',
-              email: '',
-              gender: '',
-              languages: {
-                english: false,
-                hindi: false,
-                malayalam: false
-              },
-              address: {
-                houseNo: '',
-                street: '',
-                city: '',
-                state: '',
-                pincode: ''
-              },
-              experiences: []
-            });
-          },
-          error: (err: any) => {
-          
-            alert(err.error)
-          }
-        });
+        if(this.isEditMode && this.editResumeId) {
+          this.resumeService.updateResume(this.editResumeId, this.selectedFile, payload).subscribe({
+            next: (res) => {
+              alert(res.message);
+              this.isEditMode = false;
+              this.editResumeId = null;
+              this.fetchResumeDetails();
+              this.resumeForm.reset({
+                firstName: '',
+                lastName: '',
+                dateOfBirth: '',
+                email: '',
+                gender: 'male',
+                languages: {
+                  english: true,
+                  hindi: false,
+                  malayalam: false,
+                  other: false,
+                },
+                address: {
+                  houseNo: '',
+                  street: '',
+                  city: '',
+                  state: '',
+                  pincode: ''
+                },
+                experiences: []
+              });
+            },
+            error: (err) => {
+              alert(err.message || err.response?.error.message || 'Something happened check console');
+            }
+          })
+        }
+
+        else{
+          this.resumeService.createResume(payload, this.selectedFile).subscribe({
+            next : (res: any) => {
+              this.resumeData = res.resume;
+              alert('Resume Created');
+              this.fetchResumeDetails();
+              this.resumeForm.reset({
+                firstName: '',
+                lastName: '',
+                dateOfBirth: '',
+                email: '',
+                gender: 'male',
+                languages: {
+                  english: true,
+                  hindi: false,
+                  malayalam: false,
+                  other: false,
+                },
+                address: {
+                  houseNo: '',
+                  street: '',
+                  city: '',
+                  state: '',
+                  pincode: ''
+                },
+                experiences: []
+              });
+            },
+            error: (err: any) => {
+              alert(err.message || 'Something Happened Try Again');
+            }
+          })
+        }
+      }else {
+        this.resumeForm.markAllAsTouched();
       }
     }
 
+
+    // edit resume
+    loadResumeForEdit(id: string) {
+      this.resumeService.getResumeById(id).subscribe({
+        next: (res: any) => {
+          const resume = res.resumes;
+          this.isEditMode = true;
+          this.editResumeId = id;
+          this.showResume = false;
+          console.log(resume.languages);
+
+          this.resumeForm.patchValue({
+            firstName: resume.firstName,
+            lastName: resume.lastName,
+            dateOfBirth: resume.dateOfBirth,
+            email: resume.email,
+            gender: resume.gender,
+            address: {
+              houseNo: resume.address.houseNo,
+              street: resume.address.street,
+              city: resume.address.city,
+              state: resume.address.state,
+              pincode: resume.address.pincode
+            },
+            languages: {
+              english: resume.languages?.includes('english'),
+              hindi: resume.languages?.includes('hindi'),
+              malayalam: resume.languages?.includes('malayalam'),
+              tamil: resume.languages?.includes('tamil'),
+              others: resume.languages?.includes('others'),
+            }
+          });
+
+          // Reset experiences FormArray before filling
+          this.experience.clear();
+          if (resume.experiences) {
+            resume.experiences.forEach((exp: any) => {
+              const expGroup = new FormGroup({
+                companyName: new FormControl(exp.companyName, Validators.required),
+                position: new FormControl(exp.position, Validators.required),
+                experience: new FormGroup({
+                  startDate: new FormControl(exp.experience?.startDate),
+                  endDate: new FormControl(exp.experience?.endDate)
+                })
+              });
+              this.experience.push(expGroup);
+            });
+          }
+        },
+        error: (err) => {
+          alert(err.message || 'Error loading resume for edit');
+        }
+      });
+    }
+
+
     fetchResumeDetails() {
-      this.http.get<{resumes: any}>(this.backendUri + '/get-resume', {
-        params: {id: localStorage.getItem('id') || ''}
-      }).subscribe({
-        next : (data) => {
-          this.resumeData = data.resumes;
-          console.log(this.resumeData);
+      this.showResume = true;
+      let id = localStorage.getItem('id');
+      if(!id){
+        return
+      }
+      this.resumeService.getResumeById(id).subscribe({
+        next: (res) => {
+          this.resumeData = res.resumes;
+        },
+        error: (err) => {
+          console.log();
         }
       })
     }
 
+    showForm() {
+      this.showResume = false;
+      
+    }
+    handleShowResume() {
+      if(this.isEditMode) {
+        const confirmed = confirm('You have unsaved changes. Are you sure you want to discard them.');
+        if(confirmed) {
+          this.resumeForm.reset({
+            firstName: '',
+            lastName: '',
+            dateOfBirth: '',
+            email: '',
+            gender: 'male',
+            languages: {
+              english: true,
+              hindi: false,
+              malayalam: false
+            },
+            address: {
+              houseNo: '',
+              street: '',
+              city: '',
+              state: '',
+              pincode: ''
+            },
+            experiences: []
+          });
+          this.resumeForm.patchValue({
+            
+          })
+          this.isEditMode = false;
+          this.showResume = true;
+        }
+        else {
+          return;
+        }
+      }
+      else {
+        this.showResume = true;
+      }
+      
+    }
+
 
     // number input 
-
     allowOnlyNumbers(event: KeyboardEvent) {
       const allowedKeys = ['Backspace', 'ArrowLeft', 'ArrowRight', 'Tab'];
       if(allowedKeys.includes(event.key)) {
@@ -134,7 +287,13 @@ export class ResumeFormComponent implements OnInit{
       }
     }
 
-    // Custom Validation
+    atLeastOneLanguageValidator(control: AbstractControl): ValidationErrors | null {
+      const group = control as FormGroup;
+      const hasAtLeastOne = Object.values(group.controls).some(ctrl => ctrl.value === true);
+      return hasAtLeastOne ? null : { atLeastOneRequired: true };
+    }
+
+
     alphabetsOnly(control: AbstractControl): ValidationErrors | null {
       if (!control.value) return null;
       const pattern = /^[A-Za-z]+$/;
@@ -183,6 +342,12 @@ export class ResumeFormComponent implements OnInit{
       return null;
     }
 
+    // Image Section
+
+    onFileSelected(event: any) {
+      this.selectedFile = event.target.files[0];
+    }
+
     getFieldError(field: string): string | null {
       const control  = this.resumeForm.get(field);
       if(!control || !control.touched){
@@ -197,6 +362,7 @@ export class ResumeFormComponent implements OnInit{
       if (control.hasError('pincodeError')) return 'Pincode must be 6 digits';
       if (control.hasError('futureDate')) return 'Date cannot be in the future';
       if (control.hasError('ageError')) return 'You must be at least 18 years old';
+      if (control.hasError('pattern')) return 'Invalid Numbers';
 
       return null;
 

@@ -420,7 +420,15 @@
   color: #1e293b;
 }
 
-
+.show-resume-button {
+  align-self: center;
+  padding: 5px;
+  border: none;
+  border-radius: 4px;
+  background-color: #5a67d8;
+  color: white;
+  box-shadow: 0px 2px 5px black;
+}
 
 /* Responsive Design */
 @media (max-width: 768px) {
@@ -458,6 +466,10 @@
   }
 }
 
+.required {
+  color: red;
+}
+
 @media (max-width: 480px) {
   .resume-form-container {
     padding: 0.5rem;
@@ -477,246 +489,3 @@
   }
 }
 
-
-
-
-.resume-container {
-  max-width: 800px;
-  margin: 0 auto;
-  padding: 20px;
-  font-family: Arial, sans-serif;
-  line-height: 1.6;
-  color: #333;
-  background: #fff;
-}
-
-/* Header Section */
-.header {
-  text-align: center;
-  margin-bottom: 30px;
-  border-bottom: 2px solid #333;
-  padding-bottom: 20px;
-}
-
-.name {
-  font-size: 28px;
-  font-weight: bold;
-  margin: 0 0 10px 0;
-  text-transform: uppercase;
-  letter-spacing: 2px;
-}
-
-.contact-info {
-  margin: 10px 0;
-}
-
-.contact-info p {
-  margin: 5px 0;
-  font-size: 14px;
-}
-
-/* Section Styling */
-.section {
-  margin-bottom: 25px;
-}
-
-.section-title {
-  font-size: 16px;
-  font-weight: bold;
-  text-transform: uppercase;
-  letter-spacing: 1px;
-  margin: 0 0 15px 0;
-  padding-bottom: 5px;
-  border-bottom: 1px solid #333;
-}
-
-/* Professional Summary */
-.summary-text {
-  text-align: justify;
-  margin: 0;
-  font-size: 14px;
-}
-
-/* Skills Section */
-.skills-grid {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-}
-
-.skill-category {
-  font-size: 14px;
-  line-height: 1.5;
-}
-
-.skill-category strong {
-  font-weight: bold;
-}
-
-/* Projects & Experience */
-.experience-item {
-  margin-bottom: 20px;
-}
-
-.experience-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
-  margin-bottom: 8px;
-  flex-wrap: wrap;
-}
-
-.project-title {
-  font-size: 14px;
-  font-weight: bold;
-  text-transform: uppercase;
-  margin: 0;
-  flex: 1;
-}
-
-.date-range {
-  font-size: 13px;
-  font-style: italic;
-  color: #666;
-  white-space: nowrap;
-  margin-left: 20px;
-}
-
-.achievement-list {
-  margin: 0;
-  padding-left: 20px;
-}
-
-.achievement-list li {
-  font-size: 14px;
-  margin-bottom: 5px;
-  text-align: justify;
-}
-
-/* Education */
-.education-item {
-  margin-bottom: 15px;
-}
-
-.education-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
-  margin-bottom: 5px;
-  flex-wrap: wrap;
-}
-
-.degree-title {
-  font-size: 14px;
-  font-weight: bold;
-  margin: 0;
-  flex: 1;
-}
-
-.institution {
-  font-size: 14px;
-  margin: 2px 0;
-  font-style: italic;
-}
-
-.grade {
-  font-size: 13px;
-  margin: 2px 0;
-  color: #666;
-}
-
-/* Certifications */
-.certification-item {
-  font-size: 14px;
-  margin-bottom: 5px;
-}
-
-.cert-name {
-  font-weight: bold;
-}
-
-.cert-date {
-  color: #666;
-}
-
-/* Achievements */
-.achievement-item {
-  margin-bottom: 8px;
-}
-
-.achievement-item p {
-  margin: 0;
-  font-size: 14px;
-}
-
-/* Languages */
-.language-list {
-  display: flex;
-  gap: 15px;
-  margin: 0;
-  padding: 0;
-  list-style: none;
-}
-
-.language-list li {
-  font-size: 14px;
-}
-
-/* Responsive Design */
-@media (max-width: 768px) {
-  .resume-container {
-    padding: 15px;
-  }
-  
-  .name {
-    font-size: 24px;
-  }
-  
-  .experience-header {
-    flex-direction: column;
-    align-items: flex-start;
-  }
-  
-  .date-range {
-    margin-left: 0;
-    margin-top: 5px;
-  }
-  
-  .education-header {
-    flex-direction: column;
-    align-items: flex-start;
-  }
-  
-  .language-list {
-    flex-direction: column;
-    gap: 5px;
-  }
-}
-
-/* Print Styles */
-@media print {
-  .resume-container {
-    max-width: none;
-    margin: 0;
-    padding: 0;
-    font-size: 12px;
-  }
-  
-  .name {
-    font-size: 20px;
-  }
-  
-  .section-title {
-    font-size: 14px;
-  }
-  
-  .contact-info p,
-  .summary-text,
-  .skill-category,
-  .achievement-list li,
-  .degree-title,
-  .institution,
-  .achievement-item p {
-    font-size: 12px;
-  }
-}

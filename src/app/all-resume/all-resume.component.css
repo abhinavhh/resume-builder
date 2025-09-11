@@ -1,0 +1,232 @@
+.resume-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between; /* ✅ avatar+details on left, buttons on right */
+  gap: 15px;
+  background: #f9f9f9;
+  border: 1px solid #ddd;
+  border-radius: 10px;
+  padding: 15px;
+  margin-bottom: 12px;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.resume-item:hover {
+  transform: translateY(-2px);
+  box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.resume-avatar {
+  width: 50px;
+  height: 50px;
+  background: #3498db;
+  color: white;
+  font-weight: bold;
+  font-size: 18px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.resume-details {
+  flex: 1; /* ✅ take remaining space */
+  cursor: pointer;
+}
+
+.resume-details h2 {
+  margin: 0;
+  font-size: 18px;
+  color: #2c3e50;
+}
+
+.resume-details p {
+  margin: 2px 0;
+  font-size: 14px;
+  color: #555;
+}
+
+.resume-actions {
+  display: flex;
+  gap: 10px;
+}
+
+.btn {
+  padding: 6px 12px;
+  border: none;
+  border-radius: 6px;
+  font-size: 14px;
+  cursor: pointer;
+  transition: background 0.2s ease;
+}
+
+.update-btn {
+  background: #27ae60;
+  color: white;
+}
+
+.update-btn:hover {
+  background: #219150;
+}
+
+.delete-btn {
+  background: #e74c3c;
+  color: white;
+}
+
+.delete-btn:hover {
+  background: #c0392b;
+}
+.resume-container {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 20px;
+  font-family: Arial, Helvetica, sans-serif;
+  color: #000;
+  background: #fff;
+  line-height: 1.5;
+}
+
+.header {
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+.name {
+  font-size: 28px;
+  font-weight: bold;
+  margin: 0;
+}
+
+.contact-info p {
+  margin: 2px 0;
+  font-size: 14px;
+}
+
+.section {
+  margin-bottom: 20px;
+}
+
+.section-title {
+  font-size: 18px;
+  font-weight: bold;
+  text-transform: uppercase;
+  margin-bottom: 8px;
+  border-bottom: 1px solid #000;
+  padding-bottom: 3px;
+}
+
+.details-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.details-list li {
+  font-size: 14px;
+  margin: 3px 0;
+}
+
+.address-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: 8px;
+  font-size: 14px;
+}
+
+.experience-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-weight: bold;
+}
+
+.company-details {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 5px;
+}
+.company-details p{
+  font-size: small;
+}
+.project-title {
+  font-size: 15px;
+  margin: 0;
+}
+
+.date-range {
+  font-size: 13px;
+  font-style: italic;
+}
+
+.achievement-list {
+  margin: 5px 0 10px 20px;
+  padding: 0;
+  list-style: disc;
+  font-size: 14px;
+}
+
+.language-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  font-size: 14px;
+}
+
+.language-list li {
+  margin: 3px 0;
+}
+
+.resume-header {
+  display: flex;
+  justify-content: flex-start; /* aligns button to right */
+  margin-bottom: 1rem; /* adds space below */
+}
+
+.show-resume-button {
+  align-self: center;
+  padding: 5px;
+  border: none;
+  border-radius: 4px;
+  background-color: #5a67d8;
+  color: white;
+  box-shadow: 0px 2px 5px black;
+}
+
+.show-resume-button:hover {
+  background-color: #0056b3;
+}
+
+/* Header image */
+.header img {
+  width: 120px;           /* adjust size */
+  height: 120px;          /* keep square for circle */
+  object-fit: cover;      /* crop without distortion */
+  border-radius: 50%;     /* circular image */
+  border: 3px solid #3498db; /* optional border color */
+  margin-top: 10px;
+  display: block;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.header {
+  text-align: center;
+  margin-bottom: 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px; /* space between image and name */
+}
+
+.header .name {
+  font-size: 28px;
+  font-weight: bold;
+  margin: 0;
+}
+
+.contact-info {
+  margin-top: 5px;
+  font-size: 14px;
+}

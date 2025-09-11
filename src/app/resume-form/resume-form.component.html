@@ -1,4 +1,14 @@
-<div class="resume-form-container">
+<button
+  class="show-resume-button"
+  *ngIf="!showResume"
+  (click)="handleShowResume()"
+>
+  Show Resumes
+</button>
+<button class="show-resume-button" *ngIf="showResume" (click)="showForm()">
+  Resume Form
+</button>
+<div class="resume-form-container" *ngIf="!showResume">
   <div class="form-header">
     <h1>Resume Builder</h1>
     <p>Create your professional resume</p>
@@ -15,7 +25,16 @@
 
       <div class="form-row">
         <div class="form-group">
-          <label for="firstName" class="form-label">First Name </label>
+          <label for="firstName" class="form-label"
+            >First Name
+            <span
+              *ngIf="
+                resumeForm.get('firstName')?.hasValidator(Validators.required)
+              "
+              class="required"
+              >*</span
+            ></label
+          >
           <input
             type="text"
             id="firstName"
@@ -29,7 +48,16 @@
         </div>
 
         <div class="form-group">
-          <label for="lastName" class="form-label">Last Name </label>
+          <label for="lastName" class="form-label"
+            >Last Name
+            <span
+              *ngIf="
+                resumeForm.get('lastName')?.hasValidator(Validators.required)
+              "
+              class="required"
+              >*</span
+            ></label
+          >
           <input
             type="text"
             id="lastName"
@@ -43,7 +71,16 @@
 
       <div class="form-row">
         <div class="form-group">
-          <label for="dateOfBirth" class="form-label">Date of Birth</label>
+          <label for="dateOfBirth" class="form-label"
+            >Date of Birth
+            <span
+              *ngIf="
+                resumeForm.get('dateOfBirth')?.hasValidator(Validators.required)
+              "
+              class="required"
+              >*</span
+            ></label
+          >
           <input
             type="date"
             id="dateOfBirth"
@@ -54,7 +91,14 @@
         </div>
 
         <div class="form-group">
-          <label for="email" class="form-label">Email Address </label>
+          <label for="email" class="form-label"
+            >Email Address
+            <span
+              *ngIf="resumeForm.get('email')?.hasValidator(Validators.required)"
+              class="required"
+              >*</span
+            ></label
+          >
           <input
             type="email"
             id="email"
@@ -93,7 +137,14 @@
 
     <!-- Languages Section -->
     <div class="form-section" formGroupName="languages">
-      <h2 class="section-title">Languages</h2>
+      <h2 class="section-title">
+        Languages
+        <span
+          *ngIf="resumeForm.get('languages')?.hasValidator(Validators.required)"
+          class="required"
+          >*</span
+        >
+      </h2>
 
       <div class="languages-grid">
         <div class="form-group">
@@ -145,9 +196,20 @@
       <div formGroupName="address">
         <div class="form-row">
           <div class="form-group">
-            <label for="houseNo" class="form-label">House No </label>
+            <label for="houseNo" class="form-label"
+              >House No
+              <span
+                *ngIf="
+                  resumeForm
+                    .get('address.houseNo')
+                    ?.hasValidator(Validators.required)
+                "
+                class="required"
+                >*</span
+              ></label
+            >
             <input
-              type="number"
+              type="text"
               id="houseNo"
               formControlName="houseNo"
               (keydown)="allowOnlyNumbers($event)"
@@ -160,7 +222,18 @@
           </div>
 
           <div class="form-group">
-            <label for="street" class="form-label">Street </label>
+            <label for="street" class="form-label"
+              >Street
+              <span
+                *ngIf="
+                  resumeForm
+                    .get('address.street')
+                    ?.hasValidator(Validators.required)
+                "
+                class="required"
+                >*</span
+              ></label
+            >
             <input
               type="text"
               id="street"
@@ -175,7 +248,18 @@
 
         <div class="form-row">
           <div class="form-group">
-            <label for="city" class="form-label">City </label>
+            <label for="city" class="form-label"
+              >City
+              <span
+                *ngIf="
+                  resumeForm
+                    .get('address.city')
+                    ?.hasValidator(Validators.required)
+                "
+                class="required"
+                >*</span
+              ></label
+            >
             <input
               type="text"
               id="city"
@@ -187,7 +271,18 @@
           </div>
 
           <div class="form-group">
-            <label for="state" class="form-label">State </label>
+            <label for="state" class="form-label"
+              >State
+              <span
+                *ngIf="
+                  resumeForm
+                    .get('address.state')
+                    ?.hasValidator(Validators.required)
+                "
+                class="required"
+                >*</span
+              ></label
+            >
             <input
               type="text"
               id="state"
@@ -201,7 +296,18 @@
           </div>
 
           <div class="form-group">
-            <label for="pincode" class="form-label">Pincode</label>
+            <label for="pincode" class="form-label"
+              >Pincode
+              <span
+                *ngIf="
+                  resumeForm
+                    .get('address.pincode')
+                    ?.hasValidator(Validators.required)
+                "
+                class="required"
+                >*</span
+              ></label
+            >
             <input
               type="number"
               id="pincode"
@@ -219,6 +325,21 @@
       </div>
     </div>
 
+    <!-- Image Section -->
+    <div class="form-section">
+      <h2 class="section-title">Upload Image (optional)</h2>
+      <div
+        style="
+          display: flex;
+          flex-direction: column;
+          gap: 8px;
+          justify-content: center;
+        "
+      >
+        <input type="file" (change)="onFileSelected($event)" />
+      </div>
+    </div>
+
     <!-- Experience Section -->
     <div class="form-section" formArrayName="experiences">
       <h2 class="section-title">Work Experience</h2>
@@ -229,23 +350,105 @@
           <div
             *ngFor="let exp of experience.controls; let i = index"
             [formGroupName]="i"
+            style="margin-bottom: 5px"
           >
-            <input
-              type="text"
-              placeholder="Company Name"
-              formControlName="companyName"
-            />
-            <input
-              type="text"
-              placeholder="Position"
-              formControlName="position"
-            />
+            <div
+              style="
+                display: flex;
+                flex-direction: column;
+                justify-content: center;
+              "
+            >
+              <label
+                >Company Name
+                <span
+                  *ngIf="
+                    resumeForm
+                      .get('experiences.' + i + '.companyName')
+                      ?.hasValidator(Validators.required)
+                  "
+                  class="required"
+                  >*</span
+                ></label
+              >
+              <input
+                type="text"
+                placeholder="Company Name"
+                formControlName="companyName"
+                class="form-control"
+                style="margin-bottom: 0px"
+              />
+              <div class="error-message">
+                {{ getFieldError("experiences." + i + ".companyName") }}
+              </div>
+            </div>
+            <div
+              style="
+                display: flex;
+                flex-direction: column;
+                justify-content: center;
+              "
+            >
+              <label
+                >Position
+                <span
+                  *ngIf="
+                    resumeForm
+                      .get('experiences.' + i + '.position')
+                      ?.hasValidator(Validators.required)
+                  "
+                  class="required"
+                  >*</span
+                ></label
+              >
+              <input
+                type="text"
+                placeholder="Position"
+                formControlName="position"
+                class="form-control"
+                style="margin-bottom: 0px"
+              />
+              <div class="error-message">
+                {{ getFieldError("experiences." + i + ".position") }}
+              </div>
+            </div>
 
             <div formGroupName="experience">
-              <input type="date" formControlName="startDate" />
-              <input type="date" formControlName="endDate" />
+              <label style="display: flex; gap: 8px; align-items: center"
+                >Date of Joining
+                <span
+                  *ngIf="
+                    resumeForm
+                      .get('experiences.' + i + '.experience.startDate')
+                      ?.hasValidator(Validators.required)
+                  "
+                  class="required"
+                  >*</span
+                >
+                <input type="date" formControlName="startDate" />
+                <div class="error-message">
+                  {{
+                    getFieldError("experiences." + i + ".experience.startDate")
+                  }}
+                </div>
+              </label>
+              <label style="display: flex; gap: 8px; align-items: center"
+                >Date of Leaving
+                <input type="date" formControlName="endDate" />
+                <div class="error-message">
+                  {{
+                    getFieldError("experiences." + i + ".experience.endDate")
+                  }}
+                </div>
+              </label>
             </div>
-            <button type="button" (click)="handleDelete(i)">Delete</button>
+            <button
+              type="button"
+              (click)="handleDelete(i)"
+              style="margin-top: 10px"
+            >
+              Delete
+            </button>
           </div>
           <p class="placeholder-text"></p>
         </div>
@@ -262,7 +465,6 @@
 
     <!-- Form Actions -->
     <div class="form-actions">
-      <button type="button" class="btn-secondary">Cancel</button>
       <button type="submit" class="btn-primary" [disabled]="resumeForm.invalid">
         Generate Resume
       </button>
@@ -271,53 +473,5 @@
 </div>
 
 <!-- RESUME PRINTING -->
-<button (click)="fetchResumeDetails()">Show Resume</button>
-<div *ngIf="resumeData" class="resume-container">
-  <!-- Header Section -->
-  <div class="header">
-    <h1 class="name">{{ resumeData.first_name }} {{ resumeData.last_name }}</h1>
-    <div class="contact-info">
-      <p>
-        {{ resumeData.house_no }}, {{ resumeData.street }},
-        {{ resumeData.city }}, {{ resumeData.state }} {{ resumeData.pincode }}
-      </p>
-      <p>{{ resumeData.email }} | {{ resumeData.phone }}</p>
-      <p *ngIf="resumeData.linkedin">LinkedIn: {{ resumeData.linkedin }}</p>
-      <p *ngIf="resumeData.github">GitHub: {{ resumeData.github }}</p>
-    </div>
-  </div>
 
-  <!-- Experience -->
-  <div class="section" *ngIf="resumeData.projects || resumeData.experiences">
-    <h2 class="section-title">EXPERIENCE</h2>
-
-    <!-- Work Experience -->
-    <div *ngFor="let exp of resumeData.experiences" class="experience-item">
-      <div class="experience-header">
-        <h3 class="project-title">
-          {{ exp.position }} - {{ exp.company_name }}
-        </h3>
-        <span class="date-range"
-          >{{ exp.start_date }} - {{ exp.end_date || "Present" }}</span
-        >
-      </div>
-      <ul class="achievement-list" *ngIf="exp.responsibilities">
-        <li *ngFor="let responsibility of exp.responsibilities">
-          {{ responsibility }}
-        </li>
-      </ul>
-    </div>
-  </div>
-
-  <!-- Languages -->
-  <h2 *ngIf="resumeData.languages" class="section-title">LANGUAGES</h2>
-  <div
-    class="section"
-    *ngFor="let lang of resumeData.languages"
-  >
-    
-    <ul class="language-list">
-      <li>{{lang.name}}</li>
-    </ul>
-  </div>
-</div>
+<app-all-resume *ngIf="showResume"></app-all-resume>
