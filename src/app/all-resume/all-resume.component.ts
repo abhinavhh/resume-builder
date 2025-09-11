@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { ResumeService } from '../Service/resume.service';
 import { Resume } from '../Service/resume.model';
+import Swal from 'sweetalert2';
 
 @Component({
   selector: 'app-all-resume',
@@ -42,6 +43,7 @@ export class AllResumeComponent implements OnInit {
             data.languages = [];
           }
         }
+        
         this.resumeData = data;
         this.viewAll = true;
       }
@@ -56,7 +58,11 @@ export class AllResumeComponent implements OnInit {
     }
     this.resumeService.deleteResumeById(id).subscribe({
       next: (res) => {
-        alert(res.message);
+        Swal.fire({
+          icon: 'success',
+          title: 'Success!',
+          text: res.message
+        })
         this.allResumesData = this.allResumesData.filter(r => r.id !== id); 
         if(this.allResumesData.length === 0) {
           this.resumeData = null;

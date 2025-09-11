@@ -17,7 +17,7 @@ import { AllResumeComponent } from './all-resume/all-resume.component';
   imports: [
     BrowserModule,
     ReactiveFormsModule,
-    HttpClientModule
+    HttpClientModule,
   ],
   providers: [ResumeService],
   bootstrap: [AppComponent]

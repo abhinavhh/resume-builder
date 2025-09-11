@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { AbstractControl, FormArray, FormControl, FormGroup, ValidationErrors, Validators } from '@angular/forms';
 import { Resume } from '../Service/resume.model';
 import { ResumeService } from '../Service/resume.service';
+import Swal from 'sweetalert2';
 
 @Component({
   selector: 'app-resume-form',
@@ -27,7 +28,7 @@ export class ResumeFormComponent implements OnInit{
         email: new FormControl('', [Validators.required, Validators.email]),
         gender: new FormControl('male'),
         languages: new FormGroup({
-          english: new FormControl(true),
+          english: new FormControl(false),
           hindi: new FormControl(false),
           malayalam: new FormControl(false),
           tamil: new FormControl(false),
@@ -55,14 +56,14 @@ export class ResumeFormComponent implements OnInit{
       return this.resumeForm.get('experiences') as FormArray;
     }
 
-    addExperience() {
+    addExperience(exp?: any) {
       const expGroup = new FormGroup({
-        companyName: new FormControl('', Validators.required),
-        position: new FormControl('', Validators.required),
+        companyName: new FormControl(exp?.companyName || '', Validators.required),
+        position: new FormControl(exp?.position || '', Validators.required),
         experience: new FormGroup({
-          startDate: new FormControl('', [Validators.required, this.notFutureDate]),
-          endDate: new FormControl('',)
-        })
+          startDate: new FormControl(exp?.experience.startDate || '', [Validators.required, this.notFutureDate]),
+          endDate: new FormControl(exp?.experience.endDate || '',[Validators.required, this.noInvalidDate])
+        }, this.invalidDates)
         
       });
 
@@ -88,7 +89,12 @@ export class ResumeFormComponent implements OnInit{
         if(this.isEditMode && this.editResumeId) {
           this.resumeService.updateResume(this.editResumeId, this.selectedFile, payload).subscribe({
             next: (res) => {
-              alert(res.message);
+              Swal.fire({
+                icon: 'success',
+                title: 'Success!',
+                text: res.message
+              })
+              // alert(res.message);
               this.isEditMode = false;
               this.editResumeId = null;
               this.fetchResumeDetails();
@@ -99,7 +105,7 @@ export class ResumeFormComponent implements OnInit{
                 email: '',
                 gender: 'male',
                 languages: {
-                  english: true,
+                  english: false,
                   hindi: false,
                   malayalam: false,
                   other: false,
@@ -124,7 +130,11 @@ export class ResumeFormComponent implements OnInit{
           this.resumeService.createResume(payload, this.selectedFile).subscribe({
             next : (res: any) => {
               this.resumeData = res.resume;
-              alert('Resume Created');
+              Swal.fire({
+                icon: 'success',
+                title: 'Success!',
+                text: res.message
+              })
               this.fetchResumeDetails();
               this.resumeForm.reset({
                 firstName: '',
@@ -133,7 +143,7 @@ export class ResumeFormComponent implements OnInit{
                 email: '',
                 gender: 'male',
                 languages: {
-                  english: true,
+                  english: false,
                   hindi: false,
                   malayalam: false,
                   other: false,
@@ -195,15 +205,16 @@ export class ResumeFormComponent implements OnInit{
           this.experience.clear();
           if (resume.experiences) {
             resume.experiences.forEach((exp: any) => {
-              const expGroup = new FormGroup({
-                companyName: new FormControl(exp.companyName, Validators.required),
-                position: new FormControl(exp.position, Validators.required),
-                experience: new FormGroup({
-                  startDate: new FormControl(exp.experience?.startDate),
-                  endDate: new FormControl(exp.experience?.endDate)
-                })
-              });
-              this.experience.push(expGroup);
+              this.addExperience(exp);
+              // const expGroup = new FormGroup({
+              //   companyName: new FormControl(exp.companyName, Validators.required),
+              //   position: new FormControl(exp.position, Validators.required),
+              //   experience: new FormGroup({
+              //     startDate: new FormControl(exp.experience?.startDate),
+              //     endDate: new FormControl(exp.experience?.endDate)
+              //   })
+              // });
+              // this.experience.push(expGroup);
             });
           }
         },
@@ -225,7 +236,7 @@ export class ResumeFormComponent implements OnInit{
           this.resumeData = res.resumes;
         },
         error: (err) => {
-          console.log();
+          console.log(err);
         }
       })
     }
@@ -235,38 +246,49 @@ export class ResumeFormComponent implements OnInit{
       
     }
     handleShowResume() {
-      if(this.isEditMode) {
-        const confirmed = confirm('You have unsaved changes. Are you sure you want to discard them.');
-        if(confirmed) {
-          this.resumeForm.reset({
-            firstName: '',
-            lastName: '',
-            dateOfBirth: '',
-            email: '',
-            gender: 'male',
-            languages: {
-              english: true,
-              hindi: false,
-              malayalam: false
-            },
-            address: {
-              houseNo: '',
-              street: '',
-              city: '',
-              state: '',
-              pincode: ''
-            },
-            experiences: []
-          });
-          this.resumeForm.patchValue({
-            
-          })
-          this.isEditMode = false;
-          this.showResume = true;
-        }
-        else {
-          return;
-        }
+      if(this.isEditMode || this.resumeForm.dirty) {
+        Swal.fire({
+          title: "Are you sure?",
+          text: "You have unsaved changes. Do you want to remove it.",
+          icon: "warning",
+          showCancelButton: true,
+          confirmButtonColor: "#3085d6",
+          cancelButtonColor: "#d33",
+          confirmButtonText: "Yes, delete it!"
+        }).then((result) => {
+          if (result.isConfirmed) {
+            Swal.fire({
+              title: "Cleared!",
+              text: "Your form data has been cleared.",
+              icon: "success"
+            });
+            this.resumeForm.reset({
+              firstName: '',
+              lastName: '',
+              dateOfBirth: '',
+              email: '',
+              gender: 'male',
+              languages: {
+                english: false,
+                hindi: false,
+                malayalam: false
+              },
+              address: {
+                houseNo: '',
+                street: '',
+                city: '',
+                state: '',
+                pincode: ''
+              },
+              experiences: []
+            });
+            this.isEditMode = false;
+            this.showResume = true;
+          }
+          else{
+            return
+          }
+        });
       }
       else {
         this.showResume = true;
@@ -342,6 +364,25 @@ export class ResumeFormComponent implements OnInit{
       return null;
     }
 
+    noInvalidDate(control: AbstractControl): ValidationErrors | null {
+      if(!control.value) return null;
+      const inputDate = control.value.toString();
+      const year = inputDate.split('-')[0];
+      if (!/^\d{4}$/.test(year)) {
+        return { invalidYear: true };
+      }
+      return null;
+    }
+
+    invalidDates(control: AbstractControl): ValidationErrors | null {
+      if(!control.value) return null;
+      const startDate = control.get('startDate')?.value;
+      const endDate = control.get('endDate')?.value;
+      if(startDate > endDate) {
+        return { dateMissMatch: true };
+      }
+      return null;
+    }
     // Image Section
 
     onFileSelected(event: any) {
@@ -363,6 +404,8 @@ export class ResumeFormComponent implements OnInit{
       if (control.hasError('futureDate')) return 'Date cannot be in the future';
       if (control.hasError('ageError')) return 'You must be at least 18 years old';
       if (control.hasError('pattern')) return 'Invalid Numbers';
+      if (control.hasError('invalidYear')) return 'Invalid Year';
+      if (control.hasError('dateMissMatch')) return 'Date Miss Match';
 
       return null;
 

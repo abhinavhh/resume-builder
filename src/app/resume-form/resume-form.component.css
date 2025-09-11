@@ -262,11 +262,10 @@
 
 /* Experience Section */
 .experience-item {
-  padding: 1.5rem;
-  border: 2px dashed #e5e7eb;
+  /* padding: 1.5rem; */
+  /* border: 2px dashed #e5e7eb; */
   border-radius: 8px;
   margin-bottom: 1rem;
-  background: #fafafa;
 }
 
 .placeholder-text {

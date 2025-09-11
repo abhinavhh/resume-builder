@@ -1,5 +1,8 @@
+<div class="resume-header" style="margin-top: 10px;">
+  <button class="show-resume-button" *ngIf="viewAll" (click)="handleViewAllClick()">View All Resumes</button>
+</div>
 <div class="resume-container" *ngIf="!resumeData">
-  <h1 *ngIf="allResumesData.length === 0">No Resume Created</h1>
+  <h1 *ngIf="allResumesData.length === 0">No Resume Created</h1>  
 
   <ul class="resume-list">
     <li class="resume-item" *ngFor="let resume of allResumesData">
@@ -65,7 +68,7 @@
         <strong>Gender:</strong> {{ resumeData.gender }}
       </li>
       <li *ngIf="resumeData.dateOfBirth">
-        <strong>Date of Birth:</strong> {{ resumeData.dateOfBirth }}
+        <strong>Date of Birth:</strong> {{ resumeData.dateOfBirth | date:'dd/MM/yyyy'}}
       </li>
     </ul>
   </div>
@@ -95,8 +98,8 @@
           <p>{{ exp.position }}</p>
         </div>
         <span class="date-range"
-          >{{ exp.experience.startDate }} -
-          {{ exp.experience.endDate || "Present" }}</span
+          >{{ exp.experience.startDate | date:'dd/MM/yyyy'}} -
+          {{ exp.experience.endDate | date:'dd/MM/yyyy' }}</span
         >
       </div>
     </div>
@@ -113,6 +116,3 @@
   </div>
 </div>
 
-<div class="resume-header">
-  <button class="show-resume-button" *ngIf="viewAll" (click)="handleViewAllClick()">View All Resumes</button>
-</div>  

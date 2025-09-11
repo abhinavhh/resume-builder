@@ -344,7 +344,7 @@
     <div class="form-section" formArrayName="experiences">
       <h2 class="section-title">Work Experience</h2>
 
-      <div>
+      
         <div class="experience-item">
           <!-- Experience form controls would go here -->
           <div
@@ -434,10 +434,23 @@
               </label>
               <label style="display: flex; gap: 8px; align-items: center"
                 >Date of Leaving
+                <span
+                  *ngIf="
+                    resumeForm
+                      .get('experiences.' + i + '.experience.endDate')
+                      ?.hasValidator(Validators.required)
+                  "
+                  class="required"
+                  >*</span>
                 <input type="date" formControlName="endDate" />
                 <div class="error-message">
                   {{
                     getFieldError("experiences." + i + ".experience.endDate")
+                  }}
+                </div>
+                <div class="error-message" *ngIf="experience.at(i).get('experience.endDate')?.touched">
+                  {{
+                    getFieldError("experiences." + i + ".experience")
                   }}
                 </div>
               </label>
@@ -461,12 +474,15 @@
           <span>+</span> Add Experience
         </button>
       </div>
-    </div>
+    
 
     <!-- Form Actions -->
     <div class="form-actions">
-      <button type="submit" class="btn-primary" [disabled]="resumeForm.invalid">
+      <button type="submit" class="btn-primary" *ngIf="!isEditMode" [disabled]="resumeForm.invalid">
         Generate Resume
+      </button>
+      <button type="submit" class="btn-primary" *ngIf="isEditMode" [disabled]="resumeForm.invalid">
+        Update Resume
       </button>
     </div>
   </form>
